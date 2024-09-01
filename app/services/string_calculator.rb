@@ -5,17 +5,32 @@ class StringCalculator
   def self.add(numbers)
     return 0 if numbers.empty?
 
-    delimiter = ','
+    delimiters = [',']
     if numbers.start_with?('//')
-      delimiter = numbers[2]
-      numbers = numbers[4..]
+      delimiter_spec, numbers = numbers.split("\n", 2)
+      delimiters = parse_delimiters(delimiter_spec)
     end
 
-    numbers = numbers.gsub("\n", delimiter)
-    num_array = numbers.split(delimiter).map(&:to_i)
+    # Replace newlines with the first delimiter for initial splitting
+    numbers = numbers.gsub("\n", delimiters[0])
+    num_array = numbers.split(Regexp.union(delimiters)).map(&:to_i)
+
+    # Filter out numbers greater than 1000
+    num_array.reject! { |n| n > 1000 }
+
     negatives = num_array.select(&:negative?)
     raise "negative numbers not allowed: #{negatives.join(', ')}" if negatives.any?
 
     num_array.sum
+  end
+
+  private
+
+  def self.parse_delimiters(delimiter_spec)
+    if delimiter_spec.start_with?('//[')
+      delimiter_spec.scan(/\[(.*?)\]/).flatten
+    else
+      [delimiter_spec[2]]
+    end
   end
 end
