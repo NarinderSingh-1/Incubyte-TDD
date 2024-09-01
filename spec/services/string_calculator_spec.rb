@@ -39,7 +39,7 @@ RSpec.describe StringCalculator do
       end
     end
 
-    context 'custom delimiters' do
+    context 'custom delimiters', :custom_delimiters do
       it 'supports different delimiters' do
         expect(StringCalculator.add("//;\n1;2")).to eq(3)
       end
